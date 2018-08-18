@@ -1,0 +1,58 @@
+version: '3.3'
+
+services:
+  wordpress:
+    build: wordpress
+    restart: always
+    expose:
+      - "9000"
+    ports:
+      - "80:80"
+      - "35729:35729"
+      - "9876:9876"
+    environment:
+      PHP_XDEBUG_ENABLED: 1
+      XDEBUG_CONFIG: remote_host=10.0.5.49
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: 12qwaszx
+    working_dir: /var/www/html
+    volumes:
+      - wordpress-themes:/var/www/html/wp-content/themes
+      - wordpress-plugins:/var/www/html/wp-content/plugins
+    links:
+      - mysql
+  mysql:
+    image: ambientum/mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 12qwaszx
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql/data
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    links:
+      - mysql
+    environment:
+      PMA_HOST: db
+      MYSQL_DATABASE: wordpress
+      MYSQL_ROOT_PASSWORD: 12qwaszx
+volumes:
+  db-data:
+  wordpress-themes:
+  wordpress-plugins:
+#  composer:
+#    restart: 'no'
+#    image: composer/composer:php7
+#    #command: "require jhorlima/wp-mocabonita --update-no-dev"
+#    command: update
+#    volumes:
+#      - ./pocahontas:/app
